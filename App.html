@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a2a6b">
+<title>Pupitres · Vida y Verdad</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root{--navy:#0a2a6b;--blue:#1d4ed8;--gold:#f5b301;--bg:#f2f5fb;--ink:#14213d;--mute:#6b7690;--card:#fff;--ok:#12a150;--bad:#e5383b;--warn:#f59e0b;--carp:#8b5cf6;--off:#64748b;--r:18px;--sh:0 6px 24px rgba(10,42,107,.08)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+.hidden{display:none!important}
+
+/* Login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 20% 10%,#2563eb 0,transparent 45%),linear-gradient(160deg,#0a2a6b,#071a47)}
+.lcard{background:#fff;border-radius:26px;padding:34px 26px;width:100%;max-width:380px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.logo{width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,var(--navy),var(--blue));display:grid;place-items:center;font-size:34px;margin:0 auto 14px;box-shadow:0 10px 24px rgba(29,78,216,.4)}
+.lcard h1{text-align:center;font-size:22px;color:var(--navy)}
+.lcard p.sub{text-align:center;color:var(--mute);margin:4px 0 24px;font-size:13px}
+.f{display:block;margin-bottom:14px}
+.f span{display:block;font-size:12px;font-weight:700;color:var(--mute);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.f input,.f select,.f textarea{width:100%;padding:13px 14px;border:2px solid #e3e8f2;border-radius:14px;background:#f8faff;outline:none}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--blue);background:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:14px;font-weight:700;background:var(--blue);color:#fff;width:100%;transition:transform .1s}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.55}
+.btn.sec{background:#e8eefc;color:var(--blue)}.btn.gold{background:var(--gold);color:#3a2a00}.btn.ghost{background:transparent;color:var(--mute)}
+.btn.sm{padding:9px 12px;font-size:13px;width:auto;border-radius:11px}
+.err{background:#fdecec;color:#b42318;border-radius:12px;padding:11px;font-size:13px;margin-top:12px;display:none}
+
+/* Shell */
+header{background:linear-gradient(135deg,var(--navy),#123a96);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;box-shadow:0 4px 18px rgba(10,42,107,.3)}
+header .logo{width:40px;height:40px;font-size:20px;margin:0;border-radius:12px;background:rgba(255,255,255,.15);box-shadow:none}
+header h1{font-size:16px;line-height:1.1}header small{opacity:.75;font-size:12px}
+header .sp{flex:1}
+.bell{position:relative;background:rgba(255,255,255,.14);color:#fff;width:42px;height:42px;border-radius:13px;font-size:19px}
+.bell b{position:absolute;top:-4px;right:-4px;background:var(--bad);font-size:11px;min-width:19px;height:19px;border-radius:10px;display:grid;place-items:center;padding:0 4px}
+main{max-width:640px;margin:0 auto;padding:16px 14px 110px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(10,42,107,.1);z-index:60}
+nav button{background:none;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;flex:1;padding:4px}
+nav button i{font-style:normal;font-size:22px}
+nav button.on{color:var(--blue)}
+nav button.fab{margin-top:-26px}
+nav button.fab i{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--navy));color:#fff;display:grid;place-items:center;box-shadow:0 10px 24px rgba(29,78,216,.45);font-size:26px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.card h2{font-size:14px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.hello{background:linear-gradient(135deg,var(--blue),var(--navy));color:#fff}
+.hello h2{color:#fff;opacity:.85}.hello .big{font-size:34px;font-weight:800}.hello .pct{font-size:13px;opacity:.85}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:16px;padding:14px;box-shadow:var(--sh);border-left:5px solid var(--off);text-align:left;width:100%}
+.kpi b{font-size:26px;display:block}.kpi span{font-size:12px;color:var(--mute);font-weight:600}
+.kpi.ok{border-color:var(--ok)}.kpi.bad{border-color:var(--bad)}.kpi.warn{border-color:var(--warn)}.kpi.carp{border-color:var(--carp)}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip.ok{background:#d9f5e5;color:#0b6b36}.chip.bad{background:#fde1e1;color:#a4161a}.chip.warn{background:#fff0cf;color:#92580a}.chip.carp{background:#ece4ff;color:#5b21b6}.chip.off{background:#e6e9ef;color:#475569}
+.row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #eef1f7;cursor:pointer}
+.row:last-child{border-bottom:0}.row .m{flex:1;min-width:0}.row b{display:block}.row small{color:var(--mute);font-size:12px}
+.row img{width:44px;height:44px;border-radius:10px;object-fit:cover}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.dot.s1{background:var(--bad)}.dot.s2{background:var(--warn)}.dot.s3{background:var(--blue)}
+.bar{height:10px;background:#e8edf7;border-radius:6px;overflow:hidden;display:flex;margin-top:6px}
+.bar i{display:block;height:100%}
+.empty{text-align:center;color:var(--mute);padding:22px 10px}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.filters input,.filters select{padding:12px;border:2px solid #e3e8f2;border-radius:13px;background:#fff;outline:none;width:100%}
+.filters input{grid-column:1/-1}
+
+/* Escáner */
+#lector{width:100%;border-radius:20px;overflow:hidden;background:#0b1220;min-height:280px}
+.scanmsg{color:var(--mute);text-align:center;font-size:13px;margin:10px 0}
+
+/* Sheet */
+#sheetWrap{position:fixed;inset:0;background:rgba(7,18,45,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#sheetWrap.on{opacity:1;pointer-events:auto}
+#sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .25s}
+#sheetWrap.on #sheet{transform:none}
+.grip{width:44px;height:5px;background:#d5dbe8;border-radius:3px;margin:4px auto 14px}
+.pid{font-size:24px;font-weight:800;color:var(--navy)}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.meta div{background:#f4f7fd;border-radius:12px;padding:9px 11px;font-size:13px}.meta small{display:block;color:var(--mute);font-size:11px;font-weight:700;text-transform:uppercase}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.act{padding:16px 8px;border-radius:16px;font-weight:700;font-size:14px;background:#f4f7fd;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:4px;border:2px solid transparent}
+.act i{font-style:normal;font-size:26px}
+.act.ok{background:#d9f5e5;color:#0b6b36}.act.bad{background:#fde1e1;color:#a4161a}.act.warn{background:#fff0cf;color:#92580a}.act.carp{background:#ece4ff;color:#5b21b6}
+.act.sel{border-color:currentColor;box-shadow:0 0 0 3px rgba(0,0,0,.06)}
+.alertbox{background:#fff4d6;border-left:5px solid var(--warn);border-radius:12px;padding:12px;font-size:13px;margin:10px 0}
+.foto{width:100%;max-height:240px;object-fit:cover;border-radius:16px;margin:8px 0}
+.hist{font-size:13px;border-left:3px solid #dbe3f5;padding-left:12px;margin:0 0 12px 4px}
+.hist div{margin-bottom:10px;position:relative}.hist small{color:var(--mute)}
+.hist img{width:64px;height:64px;border-radius:10px;object-fit:cover;display:block;margin-top:4px}
+.pv{position:relative}.pv img{width:100%;border-radius:14px;max-height:220px;object-fit:cover}
+.sect{font-size:12px;color:var(--mute);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px}
+#toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,30px);background:#14213d;color:#fff;padding:12px 18px;border-radius:14px;z-index:300;opacity:0;transition:all .25s;max-width:90%;text-align:center;pointer-events:none;font-weight:600}
+#toast.on{opacity:1;transform:translate(-50%,0)}#toast.bad{background:#b42318}#toast.ok{background:#0b6b36}
+.spin{width:36px;height:36px;border:4px solid #dbe3f5;border-top-color:var(--blue);border-radius:50%;animation:g .8s linear infinite;margin:40px auto}
+@keyframes g{to{transform:rotate(360deg)}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Etiquetas e impresión */
+#prev{overflow:auto;background:#cfd6e6;border-radius:16px;padding:10px;max-height:60vh}
+.hoja{background:#fff;display:grid;justify-content:center;align-content:start;margin:0 auto 10px;overflow:hidden;break-after:page;page-break-after:always}
+.hoja:last-child{break-after:auto;page-break-after:auto}
+.etq{width:3cm;height:3cm;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:#fff;color:#000}
+.etq.guia{border:.1mm dashed #999}
+.etq svg{width:2.1cm;height:2.1cm;display:block}
+.etq b{font:700 7.5pt/1 Arial,sans-serif;margin-top:.7mm;white-space:nowrap}
+.etq small{font:5.5pt/1 Arial,sans-serif;margin-top:.5mm;white-space:nowrap}
+#hojas{display:none}
+@media print{
+  html,body{background:#fff!important}
+  #app,#login,#sheetWrap,#toast,nav,header{display:none!important}
+  #hojas{display:block!important}
+  #hojas .hoja{margin:0!important}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form class="lcard" id="fLogin" autocomplete="on">
+    <div class="logo">🪑</div>
+    <h1>Colegio Vida y Verdad</h1>
+    <p class="sub">Control de pupitres</p>
+    <label class="f"><span>Usuario</span><input id="lu" autocomplete="username" autocapitalize="none" required></label>
+    <label class="f"><span>Contraseña</span><input id="lp" type="password" autocomplete="current-password" required></label>
+    <button class="btn" id="lbtn">Ingresar</button>
+    <div class="err" id="lerr"></div>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="logo">🪑</div>
+    <div><h1>Vida y Verdad</h1><small id="hUser"></small></div>
+    <div class="sp"></div>
+    <button class="bell" id="bell" title="Alertas">🔔<b id="badge" class="hidden">0</b></button>
+  </header>
+  <main id="main"></main>
+  <nav>
+    <button data-v="inicio"><i>🏠</i>Inicio</button>
+    <button data-v="lista"><i>🪑</i>Pupitres</button>
+    <button data-v="escaner" class="fab"><i>📷</i>Escanear</button>
+    <button data-v="qr"><i>🏷️</i>QR</button>
+    <button data-v="ajustes"><i>⚙️</i>Ajustes</button>
+  </nav>
+</div>
+
+<div id="sheetWrap"><div id="sheet"></div></div>
+<div id="toast"></div>
+<div id="hojas"></div>
+<style id="pageStyle"></style>
+<input type="file" id="fileCam" accept="image/*" capture="environment" class="hidden">
+<input type="file" id="fileGal" accept="image/*" class="hidden">
+
+<script>
+let PID = '';
+const EST = {
+  'Bueno': { ic: '✅', cls: 'ok', lbl: 'Bueno' },
+  'Dañado': { ic: '⚠️', cls: 'bad', lbl: 'Dañado' },
+  'En Mantenimiento': { ic: '🔧', cls: 'warn', lbl: 'Mantenimiento' },
+  'En Carpinteria': { ic: '🪚', cls: 'carp', lbl: 'Carpintería' },
+  'Dado de Baja': { ic: '🗑️', cls: 'off', lbl: 'De baja' },
+  'Perdido': { ic: '❓', cls: 'off', lbl: 'Perdido' }
+};
+const S = { tok: null, user: null, data: { pupitres: [], alertas: [], appUrl: '' }, vista: 'inicio', f: { q: '', curso: '', estado: '' },
+  printIds: null, scanner: null, scanLock: false, foto: null, sel: null, aula: lsGet('pv_aula') || '' };
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const API_URL = 'https://script.google.com/macros/s/AKfycbxDto6EreG36_PqqYhhRHAoU0GHngeR4juYKVxtAB0WTN_qwumFzrh9pZyL7zCMNCAf/exec';
+const STANDALONE = typeof google === 'undefined' || !google.script;
+function api(fn, ...args) {
+  if (STANDALONE) {
+    return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }) })
+      .then(r => r.json())
+      .then(r => { if (r && r.sesion) { cerrarLocal(); throw new Error('Sesión expirada'); } return r; });
+  }
+  return new Promise((res, rej) => {
+    google.script.run.withSuccessHandler(r => {
+      if (r && r.sesion) { cerrarLocal(); rej(new Error('Sesión expirada')); } else res(r);
+    }).withFailureHandler(e => rej(new Error(e && e.message || 'Error de conexión')))[fn](...args);
+  });
+}
+let tt;
+function toast(m, tipo) {
+  const t = $('#toast'); t.textContent = m; t.className = 'on ' + (tipo || '');
+  clearTimeout(tt); tt = setTimeout(() => t.className = '', 2800);
+}
+function fecha(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+}
+function fechaCorta(iso) { return iso ? new Date(iso).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'; }
+const chip = e => `<span class="chip ${(EST[e] || EST.Perdido).cls}">${(EST[e] || {}).ic || ''} ${esc((EST[e] || {}).lbl || e)}</span>`;
+const url = id => (S.data.appUrl || '') + '?p=' + encodeURIComponent(id);
+
+/* ───── Sesión ───── */
+$('#fLogin').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const b = $('#lbtn'), er = $('#lerr'); b.disabled = true; b.textContent = 'Ingresando…'; er.style.display = 'none';
+  try {
+    const r = await api('login', $('#lu').value, $('#lp').value);
+    if (!r.ok) throw new Error(r.error);
+    lsSet('pv_tok', r.token);
+    iniciar(r);
+  } catch (e) { er.textContent = e.message; er.style.display = 'block'; }
+  b.disabled = false; b.textContent = 'Ingresar';
+});
+
+function cerrarLocal() {
+  lsSet('pv_tok', null); S.tok = null; S.bloqueo = false; detenerScanner();
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); cerrarSheet();
+}
+async function salir() { try { await api('logout', S.tok); } catch (e) {} cerrarLocal(); }
+
+function forzarClave() {
+  $('#main').innerHTML = '';
+  const w = $('#sheetWrap'), sh = $('#sheet');
+  sh.innerHTML = `<div class="grip"></div><div class="pid">🔐 Cree su contraseña</div>
+    <p style="color:var(--mute);margin:6px 0 16px">Es su primer ingreso. Escriba la contraseña temporal que le dio el Director y elija la suya.</p>
+    <label class="f"><span>Contraseña temporal</span><input id="fa" type="password" autocomplete="current-password"></label>
+    <label class="f"><span>Nueva contraseña (mín. 6)</span><input id="fn1" type="password" autocomplete="new-password"></label>
+    <label class="f"><span>Repetir nueva contraseña</span><input id="fn2" type="password" autocomplete="new-password"></label>
+    <button class="btn" id="fgo">Guardar y entrar</button><button class="btn ghost" id="fsal">Salir</button>`;
+  w.onclick = null; w.classList.add('on'); S.bloqueo = true;
+  $('#fsal').onclick = () => { S.bloqueo = false; salir(); };
+  $('#fgo').onclick = async () => {
+    const a = $('#fa').value, n = $('#fn1').value;
+    if (n.length < 6) return toast('Mínimo 6 caracteres', 'bad');
+    if (n !== $('#fn2').value) return toast('Las contraseñas no coinciden', 'bad');
+    try {
+      const r = await api('cambiarContrasena', S.tok, a, n);
+      if (!r.ok) throw new Error(r.error);
+      S.bloqueo = false; cerrarSheet(); toast('✅ Contraseña creada', 'ok'); ir('inicio');
+      cargar().then(() => { if (PID) abrirPupitre(PID); });
+    } catch (e) { toast(e.message, 'bad'); }
+  };
+}
+
+function iniciar(u) {
+  S.tok = u.token || lsGet('pv_tok'); S.user = u;
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  $('#hUser').textContent = u.nombre + ' · ' + u.rol;
+  if (u.cambiarClave) { forzarClave(); return; }
+  ir('inicio');
+  cargar().then(() => { if (PID && !iniciar.hecho) { iniciar.hecho = true; abrirPupitre(PID); } });
+}
+
+async function arrancar() {
+  const t = lsGet('pv_tok');
+  if (!t) return;
+  try {
+    const r = await api('sesionInfo', t);
+    if (r.ok) { r.token = t; iniciar(r); }
+  } catch (e) {}
+}
+
+async function cargar(silencioso) {
+  try {
+    const r = await api('cargarInicio', S.tok);
+    if (!r.ok) throw new Error(r.error);
+    S.data = r;
+    if (STANDALONE) S.data.appUrl = location.origin + location.pathname;
+    const n = r.alertas.filter(a => a.sev <= 2).length;
+    $('#badge').textContent = n; $('#badge').classList.toggle('hidden', !n);
+    if (!(S.vista === 'escaner' || S.vista === 'ajustes' || (S.vista === 'lista' && silencioso))) render();
+  } catch (e) { if (!silencioso) toast(e.message, 'bad'); }
+}
+setInterval(() => { if (S.tok && !document.hidden && !$('#sheetWrap').classList.contains('on')) cargar(true); }, 90000);
+
+/* ───── Navegación ───── */
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => ir(b.dataset.v));
+$('#bell').onclick = () => ir('inicio');
+function ir(v) {
+  if (S.vista === 'escaner' && v !== 'escaner') detenerScanner();
+  S.vista = v;
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  render(); window.scrollTo(0, 0);
+}
+function render() {
+  const m = $('#main');
+  ({ inicio: vInicio, lista: vLista, escaner: vEscaner, qr: vQR, ajustes: vAjustes })[S.vista](m);
+}
+
+/* ───── Inicio ───── */
+function conteo(lista) {
+  const c = { total: 0, 'Bueno': 0, 'Dañado': 0, 'En Mantenimiento': 0, 'En Carpinteria': 0, 'Dado de Baja': 0, 'Perdido': 0 };
+  lista.forEach(p => { c.total++; c[p.estado]++; });
+  c.activos = c.total - c['Dado de Baja'] - c['Perdido'];
+  return c;
+}
+function vInicio(m) {
+  const L = S.data.pupitres, c = conteo(L);
+  if (!L.length && !S.data.appUrl) { m.innerHTML = '<div class="spin"></div>'; return; }
+  const pct = c.activos ? Math.round(c['Bueno'] * 100 / c.activos) : 0;
+  const cursos = {};
+  L.forEach(p => { (cursos[p.curso] = cursos[p.curso] || []).push(p); });
+  const al = S.data.alertas;
+  m.innerHTML = `
+  <div class="card hello"><h2>Pupitres operativos</h2><div class="big">${pct}%</div>
+    <div class="pct">${c['Bueno']} de ${c.activos} en buen estado · ${c.total} registrados</div></div>
+  <div class="kpis">
+    <button class="kpi bad" data-e="Dañado"><b>${c['Dañado']}</b><span>⚠️ Dañados</span></button>
+    <button class="kpi warn" data-e="En Mantenimiento"><b>${c['En Mantenimiento']}</b><span>🔧 En mantenimiento</span></button>
+    <button class="kpi carp" data-e="En Carpinteria"><b>${c['En Carpinteria']}</b><span>🪚 En carpintería</span></button>
+    <button class="kpi ok" data-e="Bueno"><b>${c['Bueno']}</b><span>✅ Buenos</span></button>
+  </div>
+  <div class="card"><h2>🔔 Requieren atención <span>${al.length}</span></h2>
+    ${al.length ? al.slice(0, 30).map(a => `<div class="row" data-id="${esc(a.id)}"><span class="dot s${a.sev}"></span>
+      ${a.foto ? `<img src="${esc(a.foto)}" loading="lazy">` : ''}<div class="m"><b>${esc(a.id)}</b><small>${esc(a.curso)} · ${esc(a.msg)}</small></div>›</div>`).join('')
+      : '<div class="empty">🎉 Todo en orden. No hay pupitres pendientes.</div>'}
+  </div>
+  <div class="card"><h2>Por curso</h2>
+    ${Object.keys(cursos).sort().map(k => {
+      const x = conteo(cursos[k]), t = x.total || 1;
+      return `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between"><b>${esc(k)}</b><small style="color:var(--mute)">${x.total} pupitres</small></div>
+      <div class="bar"><i style="width:${x['Bueno'] * 100 / t}%;background:var(--ok)"></i><i style="width:${x['Dañado'] * 100 / t}%;background:var(--bad)"></i><i style="width:${x['En Mantenimiento'] * 100 / t}%;background:var(--warn)"></i><i style="width:${x['En Carpinteria'] * 100 / t}%;background:var(--carp)"></i><i style="width:${(x['Dado de Baja'] + x['Perdido']) * 100 / t}%;background:var(--off)"></i></div></div>`;
+    }).join('') || '<div class="empty">Aún no hay pupitres. Cree el primer lote en Ajustes.</div>'}
+  </div>`;
+  m.querySelectorAll('.row[data-id]').forEach(r => r.onclick = () => abrirPupitre(r.dataset.id));
+  m.querySelectorAll('.kpi').forEach(k => k.onclick = () => { S.f = { q: '', curso: '', estado: k.dataset.e }; ir('lista'); });
+}
+
+/* ───── Lista ───── */
+function filtrar() {
+  const q = S.f.q.toLowerCase();
+  return S.data.pupitres.filter(p => (!S.f.curso || p.curso === S.f.curso) && (!S.f.estado || p.estado === S.f.estado) &&
+    (!q || (p.id + ' ' + p.curso + ' ' + p.ubicacion + ' ' + (p.obs || '')).toLowerCase().includes(q)));
+}
+function opts(arr, sel, todos) {
+  return `<option value="">${todos}</option>` + arr.map(x => `<option value="${esc(x)}" ${x === sel ? 'selected' : ''}>${esc(x)}</option>`).join('');
+}
+const cursosDe = () => [...new Set(S.data.pupitres.map(p => p.curso))].sort();
+function vLista(m) {
+  m.innerHTML = `<div class="filters">
+    <input id="fq" type="search" placeholder="🔍 Buscar código, curso, aula…" value="${esc(S.f.q)}">
+    <select id="fc">${opts(cursosDe(), S.f.curso, 'Todos los cursos')}</select>
+    <select id="fe">${opts(Object.keys(EST), S.f.estado, 'Todos los estados')}</select></div>
+    <div id="lres"></div>
+    <div class="two" style="margin-top:6px"><button class="btn sec" id="bcsv">⬇️ Exportar CSV</button><button class="btn sec" id="bpr">🏷️ Imprimir QR</button></div>`;
+  const pintar = () => {
+    const L = filtrar();
+    $('#lres').innerHTML = `<div class="card" style="padding:6px 16px"><div style="padding:8px 0;color:var(--mute);font-size:12px;font-weight:700">${L.length} PUPITRES</div>` +
+      (L.slice(0, 300).map(p => `<div class="row" data-id="${esc(p.id)}">${p.foto ? `<img src="${esc(p.foto)}" loading="lazy">` : ''}
+      <div class="m"><b>${esc(p.id)}</b><small>${esc(p.curso)} · ${esc(p.ubicacion)}</small></div>${chip(p.estado)}</div>`).join('') || '<div class="empty">Sin resultados</div>') +
+      (L.length > 300 ? '<div class="empty">Mostrando 300. Afine la búsqueda.</div>' : '') + '</div>';
+    document.querySelectorAll('#lres .row').forEach(r => r.onclick = () => abrirPupitre(r.dataset.id));
+  };
+  $('#fq').oninput = e => { S.f.q = e.target.value; pintar(); };
+  $('#fc').onchange = e => { S.f.curso = e.target.value; pintar(); };
+  $('#fe').onchange = e => { S.f.estado = e.target.value; pintar(); };
+  $('#bpr').onclick = () => { S.printIds = filtrar().map(p => p.id); ir('qr'); };
+  $('#bcsv').onclick = exportarCSV;
+  pintar();
+}
+function exportarCSV() {
+  const f = x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+  const filas = [['Codigo', 'Curso', 'Aula', 'Estado', 'Ubicacion', 'Ultima actualizacion', 'Proximo mantenimiento', 'Observaciones']]
+    .concat(filtrar().map(p => [p.id, p.curso, p.aula, p.estado, p.ubicacion, p.actualizado, p.proxMant, p.obs]));
+  const blob = new Blob(['\ufeff' + filas.map(r => r.map(f).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pupitres.csv'; a.click();
+}
+
+/* ───── Escáner ───── */
+function aulasDe() { return [...new Set(S.data.pupitres.flatMap(p => [p.aula, p.ubicacion]).filter(Boolean))].sort(); }
+function vEscaner(m) {
+  m.innerHTML = `<label class="f"><span>📍 Estoy en el aula (para detectar pupitres fuera de lugar)</span>
+    <select id="sa">${opts(aulasDe(), S.aula, 'No verificar ubicación')}</select></label>
+    <div id="lector"></div><div id="lector-tmp" style="display:none"></div>
+    <div class="card"><h2>O escriba el código</h2><div class="two" style="grid-template-columns:1fr auto"><input id="mi" style="padding:12px;border:2px solid #e3e8f2;border-radius:13px" placeholder="P-1A-001" autocapitalize="characters"><button class="btn sm" id="mb">Buscar</button></div></div>`;
+  $('#sa').onchange = e => { S.aula = e.target.value; lsSet('pv_aula', S.aula || null); };
+  $('#mb').onclick = () => { const v = $('#mi').value.trim(); if (v) alEscanear(v); };
+  $('#mi').onkeydown = e => { if (e.key === 'Enter') $('#mb').click(); };
+  iniciarScanner();
+}
+function iniciarScanner() {
+  if (typeof Html5Qrcode === 'undefined') return scannerFoto();
+  S.scanner = new Html5Qrcode('lector');
+  S.scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 230, height: 230 } }, alEscanear, () => {})
+    .catch(() => { S.scanner = null; scannerFoto(); });
+}
+function scannerFoto() {
+  // Dentro del iframe de Apps Script la cámara en vivo está bloqueada: alternativa por foto.
+  $('#lector').innerHTML = '<label class="btn" style="display:block;text-align:center;cursor:pointer">📷 Tomar foto del QR' +
+    '<input type="file" id="qf" capture="environment" hidden></label>' +
+    '<div class="scanmsg" style="color:#fff">Tip: también puede abrir la cámara normal del celular y apuntar al QR.</div>';
+  $('#qf').accept = 'image' + '/' + '*';
+  $('#qf').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (typeof Html5Qrcode === 'undefined') { toast('Lector no disponible. Escriba el código.', 'bad'); return; }
+    try {
+      const h = new Html5Qrcode('lector-tmp');
+      const t = await h.scanFile(f, false);
+      alEscanear(t);
+    } catch (x) { toast('No se detectó un QR. Intente de nuevo más cerca.', 'bad'); }
+    e.target.value = '';
+  };
+}
+function detenerScanner() {
+  const s = S.scanner; S.scanner = null;
+  if (s) s.stop().then(() => s.clear()).catch(() => {});
+}
+function idDe(t) {
+  t = String(t).trim();
+  const m = /[?&]p=([^&#]+)/.exec(t);
+  return m ? decodeURIComponent(m[1]) : t;
+}
+function alEscanear(txt) {
+  if (S.scanLock) return;
+  S.scanLock = true; if (navigator.vibrate) navigator.vibrate(60);
+  abrirPupitre(idDe(txt), true);
+}
+
+/* ───── Ficha del pupitre ───── */
+function cerrarSheet() { if (S.bloqueo) return; $('#sheetWrap').classList.remove('on'); S.scanLock = false; S.foto = null; S.sel = null; }
+$('#sheetWrap').addEventListener('click', e => { if (e.target.id === 'sheetWrap') cerrarSheet(); });
+function abrirSheet(html) { $('#sheet').innerHTML = '<div class="grip"></div>' + html; $('#sheetWrap').classList.add('on'); $('#sheet').scrollTop = 0; }
+
+async function abrirPupitre(id, desdeScan) {
+  S.scanLock = true; S.foto = null; S.sel = null;
+  abrirSheet('<div class="spin"></div>');
+  try {
+    const r = await api('obtenerPupitre', S.tok, id);
+    if (!r.ok) { abrirSheet(`<div class="empty">❌ ${esc(r.error)}</div><button class="btn sec" onclick="cerrarSheet()">Cerrar</button>`); return; }
+    pintarFicha(r.pupitre, r.historial, desdeScan);
+  } catch (e) { cerrarSheet(); toast(e.message, 'bad'); }
+}
+
+function pintarFicha(p, hist, desdeScan) {
+  const rol = S.user.rol;
+  const permitidos = rol === 'Conserje' ? ['Dañado'] : ['Bueno', 'Dañado', 'En Mantenimiento', 'En Carpinteria'];
+  const extra = rol === 'Director' ? ['Perdido', 'Dado de Baja'] : rol === 'Regente' ? ['Perdido'] : [];
+  const fuera = S.aula && p.ubicacion && p.ubicacion.toLowerCase() !== S.aula.toLowerCase();
+  const venc = p.proxMant && new Date(p.proxMant) < new Date();
+  S.cur = p;
+  abrirSheet(`
+    <div style="display:flex;justify-content:space-between;align-items:center"><div class="pid">${esc(p.id)}</div>${chip(p.estado)}</div>
+    ${p.foto ? `<img class="foto" src="${esc(p.foto)}">` : ''}
+    ${fuera ? `<div class="alertbox">📍 <b>Fuera de lugar:</b> está registrado en <b>${esc(p.ubicacion)}</b> y usted está en <b>${esc(S.aula)}</b>.
+      <button class="btn sm gold" id="bmov" style="margin-top:8px">Mover a ${esc(S.aula)}</button></div>` : ''}
+    ${venc && p.estado === 'Bueno' ? '<div class="alertbox">🔧 Mantenimiento vencido. Regístrelo con el botón verde.</div>' : ''}
+    <div class="meta"><div><small>Curso</small>${esc(p.curso)}</div><div><small>Ubicación</small>${esc(p.ubicacion)}</div>
+      <div><small>Última actualización</small>${fechaCorta(p.actualizado)}</div><div><small>Próx. mantenimiento</small>${fechaCorta(p.proxMant)}</div></div>
+    ${p.obs ? `<div class="meta" style="grid-template-columns:1fr"><div><small>Observación</small>${esc(p.obs)}</div></div>` : ''}
+    <div class="sect">Cambiar estado</div>
+    <div class="acts">${permitidos.map(e => `<button class="act ${EST[e].cls}" data-e="${e}"><i>${EST[e].ic}</i>${e === 'Bueno' && p.estado === 'Bueno' ? 'Mantenimiento realizado' : EST[e].lbl}</button>`).join('')}</div>
+    ${extra.length ? `<div class="two">${extra.map(e => `<button class="btn sec sm" data-e="${e}">${EST[e].ic} ${EST[e].lbl}</button>`).join('')}</div>` : ''}
+    <div id="form"></div>
+    <div class="sect">Historial</div>
+    <div class="hist">${hist.length ? hist.map(h => `<div><b>${esc(h.accion.replace(/_/g, ' '))}</b> ${h.anterior || h.nuevo ? esc(h.anterior) + ' → ' + esc(h.nuevo) : ''}<br>
+      <small>${fecha(h.fecha)} · ${esc(h.usuario)}${h.nota ? ' · ' + esc(h.nota) : ''}</small>${h.foto ? `<img src="${esc(h.foto)}" loading="lazy">` : ''}</div>`).join('') : '<small>Sin movimientos</small>'}</div>
+    <button class="btn ghost" onclick="cerrarSheet()">Cerrar</button>`);
+  $('#sheet').querySelectorAll('[data-e]').forEach(b => b.onclick = () => elegirEstado(b.dataset.e, p));
+  if ($('#bmov')) $('#bmov').onclick = async () => {
+    const r = await api('moverPupitre', S.tok, { id: p.id, ubicacion: S.aula });
+    toast(r.ok ? r.mensaje : r.error, r.ok ? 'ok' : 'bad'); if (r.ok) { pintarFicha(r.pupitre, hist, desdeScan); cargar(true); }
+  };
+}
+
+function elegirEstado(e, p) {
+  S.sel = e;
+  $('#sheet').querySelectorAll('.act').forEach(b => b.classList.toggle('sel', b.dataset.e === e));
+  if (e === 'Bueno') { guardarEstado(p, { id: p.id, estado: 'Bueno', mant: true, nota: '' }); return; }
+  $('#form').innerHTML = `<div class="sect">${EST[e].ic} ${esc(e === 'En Carpinteria' ? 'Enviar a carpintería' : EST[e].lbl)}</div>
+    <label class="f"><span>Detalle (opcional)</span><textarea id="fn" rows="2" maxlength="500" placeholder="Ej: pata floja, tabla rota…"></textarea></label>
+    <div id="pvw"></div>
+    <div class="two" style="margin-bottom:12px"><button class="btn sec" id="bcam">📷 Tomar foto</button><button class="btn sec" id="bgal">🖼️ Galería</button></div>
+    <button class="btn" id="bsave">Guardar ${EST[e].ic}</button>`;
+  $('#bcam').onclick = () => $('#fileCam').click();
+  $('#bgal').onclick = () => $('#fileGal').click();
+  $('#bsave').onclick = () => guardarEstado(p, { id: p.id, estado: e, nota: $('#fn').value, foto: S.foto });
+  $('#form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function guardarEstado(p, d) {
+  const b = $('#bsave'); if (b) { b.disabled = true; b.textContent = 'Guardando…'; }
+  try {
+    const r = await api('cambiarEstado', S.tok, d);
+    if (!r.ok) throw new Error(r.error);
+    toast('✅ ' + r.mensaje, 'ok'); cerrarSheet(); cargar(true);
+    if (S.vista === 'lista') setTimeout(() => cargar(), 300);
+  } catch (e) { toast(e.message, 'bad'); if (b) { b.disabled = false; b.textContent = 'Guardar'; } }
+}
+
+/* Foto: se reduce en el celular antes de subirla */
+function reducir(file) {
+  return new Promise((res, rej) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      res(c.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = () => rej(new Error('No se pudo leer la foto'));
+    img.src = u;
+  });
+}
+['fileCam', 'fileGal'].forEach(id => $('#' + id).addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { S.foto = await reducir(f); const v = $('#pvw'); if (v) v.innerHTML = `<div class="pv"><img src="${S.foto}"></div><div style="height:10px"></div>`; }
+  catch (er) { toast(er.message, 'bad'); }
+}));
+
+/* ───── QR / impresión ───── */
+function qrSvg(texto) {
+  const q = qrcode(0, 'M'); q.addData(texto); q.make();
+  const n = q.getModuleCount(); let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><path d="${d}" fill="#000"/></svg>`;
+}
+const PAPEL = { a4: [21, 29.7], carta: [21.59, 27.94] };
+const Q = { papel: 'a4', modo: 'hoja', guias: false, curso: '', estado: '', q: '' };
+
+function selQR() {
+  if (S.printIds) { const set = new Set(S.printIds); return S.data.pupitres.filter(p => set.has(p.id)); }
+  const q = Q.q.toLowerCase();
+  return S.data.pupitres.filter(p => (!Q.curso || p.curso === Q.curso) && (!Q.estado || p.estado === Q.estado) && (!q || p.id.toLowerCase().includes(q)));
+}
+function vQR(m) {
+  const sel = S.printIds;
+  m.innerHTML = `<div class="card"><h2>🏷️ Etiquetas QR 3 × 3 cm</h2>
+    ${sel ? `<div class="alertbox">Selección: <b>${sel.length}</b> pupitres. <button class="btn sm sec" id="qrAll" style="margin-left:6px">Ver todos</button></div>` :
+    `<div class="filters"><select id="qc">${opts(cursosDe(), Q.curso, 'Todos los cursos')}</select><select id="qe">${opts(Object.keys(EST), Q.estado, 'Todos los estados')}</select><input id="qq" placeholder="Buscar código" value="${esc(Q.q)}"></div>`}
+    <div class="two"><label class="f"><span>Hoja</span><select id="qp"><option value="a4" ${Q.papel === 'a4' ? 'selected' : ''}>A4 (54 por hoja)</option><option value="carta" ${Q.papel === 'carta' ? 'selected' : ''}>Carta (48 por hoja)</option></select></label>
+    <label class="f"><span>Formato</span><select id="qm"><option value="hoja" ${Q.modo === 'hoja' ? 'selected' : ''}>Varias por hoja</option><option value="una" ${Q.modo === 'una' ? 'selected' : ''}>1 por etiqueta (rollo)</option></select></label></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:12px"><input type="checkbox" id="qg" ${Q.guias ? 'checked' : ''}> Líneas guía de corte</label>
+    <div id="qinfo" class="scanmsg"></div>
+    <button class="btn" id="qprint">🖨️ Imprimir</button></div>
+    <div id="prev"></div>`;
+  const re = () => { Q.curso = ($('#qc') || {}).value || ''; Q.estado = ($('#qe') || {}).value || ''; Q.q = ($('#qq') || {}).value || '';
+    Q.papel = $('#qp').value; Q.modo = $('#qm').value; Q.guias = $('#qg').checked; armarHojas(); };
+  ['qc', 'qe', 'qq', 'qp', 'qm', 'qg'].forEach(i => { const e = $('#' + i); if (e) e.oninput = re; });
+  if ($('#qrAll')) $('#qrAll').onclick = () => { S.printIds = null; vQR(m); };
+  $('#qprint').onclick = () => { if (!selQR().length) return toast('No hay pupitres para imprimir', 'bad'); if (!S.data.appUrl) toast('Falta la URL de la app (Ajustes)', 'bad'); window.print(); };
+  armarHojas();
+}
+function armarHojas() {
+  const L = selQR(); const una = Q.modo === 'una';
+  const [W, H] = una ? [3, 3] : PAPEL[Q.papel], gap = una ? 0 : 0.15, mg = una ? 0 : 0.5;
+  const cols = una ? 1 : Math.floor((W - 2 * mg + gap) / (3 + gap)), filas = una ? 1 : Math.floor((H - 2 * mg + gap) / (3 + gap));
+  const por = cols * filas, paginas = Math.ceil(L.length / por) || 0;
+  let html = '';
+  for (let i = 0; i < paginas; i++) {
+    html += `<div class="hoja" style="width:${W}cm;height:${H - 0.05}cm;padding:${mg}cm;grid-template-columns:repeat(${cols},3cm);grid-auto-rows:3cm;gap:${gap}cm">` +
+      L.slice(i * por, (i + 1) * por).map(p => `<div class="etq ${Q.guias ? 'guia' : ''}">${qrSvg(url(p.id))}<b>${esc(p.id)}</b><small>Vida y Verdad</small></div>`).join('') + '</div>';
+  }
+  $('#hojas').innerHTML = html;
+  $('#pageStyle').textContent = `@page{size:${W}cm ${H}cm;margin:0}`;
+  const prev = $('#prev');
+  if (!prev) return;
+  prev.innerHTML = html || '<div class="empty">No hay pupitres seleccionados</div>';
+  const z = Math.min(1, (prev.clientWidth - 20) / (W * 37.8));
+  prev.querySelectorAll('.hoja').forEach(h => h.style.zoom = z);
+  $('#qinfo').innerHTML = `<b>${L.length}</b> etiquetas · ${paginas} hoja(s) · ${una ? '1 por página' : cols + ' × ' + filas + ' por hoja'}.<br>Imprima al <b>100 % (sin ajustar a la página)</b>.`;
+}
+
+/* ───── Ajustes ───── */
+function vAjustes(m) {
+  const dir = S.user.rol === 'Director';
+  m.innerHTML = `
+  ${dir ? `<div class="card"><h2>➕ Agregar pupitres</h2>
+    <div class="two"><label class="f"><span>Curso</span><input id="nc" placeholder="1ro" list="lc"></label><label class="f"><span>Aula (opcional)</span><input id="na" placeholder="1ro A" list="la"></label></div>
+    <datalist id="lc">${cursosDe().map(c => `<option value="${esc(c)}">`).join('')}</datalist><datalist id="la">${aulasDe().map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+    <div class="two"><label class="f"><span>Cantidad</span><input id="nq" type="number" min="1" max="500" value="10" inputmode="numeric"></label>
+    <label class="f"><span>Estado inicial</span><select id="ns">${Object.keys(EST).map(e => `<option>${e}</option>`).join('')}</select></label></div>
+    <button class="btn" id="ncrear">Crear y generar QR</button></div>
+  <div class="card"><h2>🔔 Notificaciones y mantenimiento</h2><div id="cfg"><div class="spin"></div></div></div>
+  <div class="card"><h2>👥 Usuarios <button class="btn sm sec" id="uadd">+ Nuevo</button></h2><div id="usrs"><div class="spin"></div></div></div>` : ''}
+  <div class="card"><h2>🔑 Cambiar contraseña</h2>
+    <label class="f"><span>Actual</span><input id="pa" type="password" autocomplete="current-password"></label>
+    <label class="f"><span>Nueva (mín. 6)</span><input id="pn" type="password" autocomplete="new-password"></label>
+    <button class="btn sec" id="pcam">Actualizar contraseña</button></div>
+  <button class="btn ghost" id="sal">Cerrar sesión (${esc(S.user.nombre)})</button>`;
+  $('#sal').onclick = salir;
+  $('#pcam').onclick = async () => {
+    const r = await api('cambiarContrasena', S.tok, $('#pa').value, $('#pn').value);
+    toast(r.ok ? '✅ Contraseña actualizada' : r.error, r.ok ? 'ok' : 'bad'); if (r.ok) { $('#pa').value = ''; $('#pn').value = ''; }
+  };
+  if (!dir) return;
+  $('#ncrear').onclick = async () => {
+    const b = $('#ncrear'); b.disabled = true;
+    try {
+      const r = await api('crearPupitres', S.tok, { curso: $('#nc').value, aula: $('#na').value, cantidad: $('#nq').value, estado: $('#ns').value });
+      if (!r.ok) throw new Error(r.error);
+      toast('✅ ' + r.mensaje, 'ok'); await cargar(true); S.printIds = r.ids; ir('qr');
+    } catch (e) { toast(e.message, 'bad'); }
+    b.disabled = false;
+  };
+  cargarCfg(); cargarUsuarios();
+}
+async function cargarCfg() {
+  const r = await api('obtenerConfig', S.tok); const box = $('#cfg'); if (!box) return;
+  if (!r.ok) { box.innerHTML = esc(r.error); return; }
+  const c = r.config;
+  box.innerHTML = `<label class="f"><span>Correos que reciben alertas (separados por coma)</span><input id="cE" value="${esc(c.Emails_Notificacion)}" placeholder="director@colegio.edu"></label>
+    <div class="two"><label class="f"><span>Mantenimiento cada (meses)</span><input id="cM" type="number" value="${esc(c.Meses_Mantenimiento)}"></label>
+    <label class="f"><span>Avisar con (días)</span><input id="cA" type="number" value="${esc(c.Dias_Aviso_Mantenimiento)}"></label>
+    <label class="f"><span>Máx. días en mantenimiento</span><input id="cX" type="number" value="${esc(c.Dias_Max_Mantenimiento)}"></label>
+    <label class="f"><span>Máx. días en carpintería</span><input id="cC" type="number" value="${esc(c.Dias_Max_Carpinteria)}"></label></div>
+    <label class="f"><span>URL de la app (la del QR)</span><input id="cU" value="${esc(c.URL_App)}" placeholder="${esc(c.URL_Detectada)}"></label>
+    <button class="btn sec" id="cG">Guardar configuración</button>
+    <div class="scanmsg">Se envía un correo al instante cuando se reporta un daño, y un resumen diario a las 7:00.</div>`;
+  $('#cG').onclick = async () => {
+    const g = await api('guardarConfig', S.tok, { Emails_Notificacion: $('#cE').value, Meses_Mantenimiento: $('#cM').value, Dias_Aviso_Mantenimiento: $('#cA').value,
+      Dias_Max_Mantenimiento: $('#cX').value, Dias_Max_Carpinteria: $('#cC').value, URL_App: $('#cU').value });
+    toast(g.ok ? '✅ Configuración guardada' : g.error, g.ok ? 'ok' : 'bad'); if (g.ok) cargar(true);
+  };
+}
+async function cargarUsuarios() {
+  const r = await api('listarUsuarios', S.tok); const box = $('#usrs'); if (!box) return;
+  if (!r.ok) { box.textContent = r.error; return; }
+  box.innerHTML = r.usuarios.map(u => `<div class="row" data-u='${esc(JSON.stringify(u))}'><div class="m"><b>${esc(u.nombre)}</b><small>${esc(u.usuario)} · ${esc(u.rol)}${u.activo ? '' : ' · inactivo'}</small></div>✏️</div>`).join('');
+  box.querySelectorAll('.row').forEach(x => x.onclick = () => formUsuario(JSON.parse(x.dataset.u)));
+  $('#uadd').onclick = () => formUsuario(null);
+}
+function formUsuario(u) {
+  abrirSheet(`<div class="pid">${u ? 'Editar usuario' : 'Nuevo usuario'}</div>
+    <label class="f"><span>Usuario</span><input id="uu" value="${esc(u ? u.usuario : '')}" ${u ? 'disabled' : ''} autocapitalize="none"></label>
+    <label class="f"><span>Nombre</span><input id="un" value="${esc(u ? u.nombre : '')}"></label>
+    <label class="f"><span>Rol</span><select id="ur">${['Director', 'Regente', 'Conserje'].map(r => `<option ${u && u.rol === r ? 'selected' : ''}>${r}</option>`).join('')}</select></label>
+    <label class="f"><span>${u ? 'Nueva contraseña (opcional)' : 'Contraseña (mín. 6)'}</span><input id="uc" type="password" autocomplete="new-password"></label>
+    <label style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><input type="checkbox" id="ua" ${!u || u.activo ? 'checked' : ''}> Activo</label>
+    <button class="btn" id="usv">Guardar</button><button class="btn ghost" onclick="cerrarSheet()">Cancelar</button>`);
+  $('#usv').onclick = async () => {
+    const r = await api('guardarUsuario', S.tok, { usuario: $('#uu').value, nombre: $('#un').value, rol: $('#ur').value, clave: $('#uc').value, activo: $('#ua').checked });
+    toast(r.ok ? '✅ Usuario guardado' : r.error, r.ok ? 'ok' : 'bad'); if (r.ok) { cerrarSheet(); cargarUsuarios(); }
+  };
+}
+
+function leerPid(cb) {
+  let hecho = false;
+  const fin = p => { if (hecho) return; hecho = true; PID = /^[A-Za-z0-9_-]{1,40}$/.test(p || '') ? p : ''; cb(); };
+  if (STANDALONE) return fin(new URLSearchParams(location.search).get('p'));
+  try { google.script.url.getLocation(loc => fin(loc && loc.parameter && loc.parameter.p)); } catch (e) { fin(''); }
+  setTimeout(() => fin(''), 2500);
+}
+leerPid(arrancar);
+</script>
+</body>
+</html>
