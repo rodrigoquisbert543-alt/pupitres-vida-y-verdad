@@ -105,6 +105,15 @@ nav button.fab i{width:62px;height:62px;border-radius:50%;background:linear-grad
 @keyframes g{to{transform:rotate(360deg)}}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
+/* Informe del pupitre */
+.inf{border-radius:20px;padding:16px 18px;color:#fff;margin-bottom:12px;background:var(--off);box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.inf.ok{background:linear-gradient(135deg,#12a150,#0b6b36)}.inf.bad{background:linear-gradient(135deg,#e5383b,#a4161a)}
+.inf.warn{background:linear-gradient(135deg,#f59e0b,#b45309)}.inf.carp{background:linear-gradient(135deg,#8b5cf6,#5b21b6)}
+.inf.off{background:linear-gradient(135deg,#64748b,#334155)}
+.inf-top{display:flex;justify-content:space-between;align-items:center}.inf small{opacity:.8;font-size:11px;font-weight:700;text-transform:uppercase}
+.inf .pid{color:#fff}.inf-ic{font-size:40px}.inf-est{font-size:26px;font-weight:800;margin-top:6px}.inf-msg{opacity:.92;font-size:14px;margin-top:2px}
+.meta b{display:block;font-size:14px}.mt.ok{color:var(--ok)}.mt.warn{color:var(--warn)}.mt.bad{color:var(--bad)}
+
 /* Premium */
 html{scroll-behavior:smooth}
 .lcard{animation:subir .5s cubic-bezier(.2,.8,.2,1)}
@@ -469,6 +478,44 @@ async function abrirPupitre(id, desdeScan) {
   } catch (e) { cerrarSheet(); toast(e.message, 'bad'); }
 }
 
+const DIA = 86400000;
+const MSG_ESTADO = {
+  'Bueno': 'En buen estado, listo para usar.',
+  'Dañado': 'Está dañado y necesita reparación.',
+  'En Mantenimiento': 'Se encuentra en mantenimiento.',
+  'En Carpinteria': 'Está en el carpintero.',
+  'Dado de Baja': 'Fue dado de baja del inventario.',
+  'Perdido': 'Está reportado como perdido.'
+};
+function informe(p, hist) {
+  const e = EST[p.estado] || EST.Perdido, ahora = Date.now();
+  const dias = p.desde ? Math.max(0, Math.floor((ahora - new Date(p.desde)) / DIA)) : null;
+  const activo = p.estado !== 'Dado de Baja' && p.estado !== 'Perdido';
+  let mant = '—', mcls = '';
+  if (activo && p.proxMant) {
+    const d = Math.ceil((new Date(p.proxMant) - ahora) / DIA);
+    if (d < 0) { mant = `Vencido hace ${-d} día${d === -1 ? '' : 's'}`; mcls = 'bad'; }
+    else if (d <= 15) { mant = `Vence en ${d} día${d === 1 ? '' : 's'}`; mcls = 'warn'; }
+    else { mant = 'Al día · ' + fechaCorta(p.proxMant); mcls = 'ok'; }
+  } else if (activo) mant = 'Sin programar';
+  const rep = p.estado !== 'Bueno' && (hist || []).find(h => h.nuevo === p.estado);
+  const sit = p.situacion || (p.estado === 'En Carpinteria' ? 'Con Carpintero' : 'En Aula');
+  return `<div class="inf ${e.cls}">
+      <div class="inf-top"><div><small>Pupitre</small><div class="pid">${esc(p.id)}</div></div><div class="inf-ic">${e.ic}</div></div>
+      <div class="inf-est">${esc(e.lbl)}</div>
+      <div class="inf-msg">${esc(MSG_ESTADO[p.estado] || '')}${dias != null && p.estado !== 'Bueno' ? ` Desde hace ${dias} día${dias === 1 ? '' : 's'}.` : ''}</div>
+    </div>
+    <div class="meta">
+      <div><small>Curso</small><b>${esc(p.curso || '—')}</b></div>
+      <div><small>Aula / ubicación</small><b>${esc(p.ubicacion || '—')}</b></div>
+      <div><small>Situación</small><b>${esc(sit)}</b></div>
+      <div><small>Mantenimiento</small><b class="mt ${mcls}">${esc(mant)}</b></div>
+      <div><small>Último mantenimiento</small><b>${fechaCorta(p.ultMant)}</b></div>
+      <div><small>Última actualización</small><b>${fechaCorta(p.actualizado)}${p.usuario ? ' · ' + esc(p.usuario) : ''}</b></div>
+    </div>
+    ${rep ? `<div class="alertbox">📝 <b>Último reporte</b> (${fecha(rep.fecha)} · ${esc(rep.usuario)}):<br>${esc(rep.nota || 'Sin detalle')}${rep.foto ? `<img src="${esc(rep.foto)}" style="width:100%;border-radius:12px;margin-top:8px" loading="lazy">` : ''}</div>` : ''}`;
+}
+
 function pintarFicha(p, hist, desdeScan) {
   const rol = S.user.rol;
   const permitidos = rol === 'Conserje' ? ['Dañado'] : ['Bueno', 'Dañado', 'En Mantenimiento', 'En Carpinteria'];
@@ -477,13 +524,11 @@ function pintarFicha(p, hist, desdeScan) {
   const venc = p.proxMant && new Date(p.proxMant) < new Date();
   S.cur = p;
   abrirSheet(`
-    <div style="display:flex;justify-content:space-between;align-items:center"><div class="pid">${esc(p.id)}</div>${chip(p.estado)}</div>
+    ${informe(p, hist)}
     ${p.foto ? `<img class="foto" src="${esc(p.foto)}">` : ''}
     ${fuera ? `<div class="alertbox">📍 <b>Fuera de lugar:</b> está registrado en <b>${esc(p.ubicacion)}</b> y usted está en <b>${esc(S.aula)}</b>.
       <button class="btn sm gold" id="bmov" style="margin-top:8px">Mover a ${esc(S.aula)}</button></div>` : ''}
     ${venc && p.estado === 'Bueno' ? '<div class="alertbox">🔧 Mantenimiento vencido. Regístrelo con el botón verde.</div>' : ''}
-    <div class="meta"><div><small>Curso</small>${esc(p.curso)}</div><div><small>Ubicación</small>${esc(p.ubicacion)}</div>
-      <div><small>Última actualización</small>${fechaCorta(p.actualizado)}</div><div><small>Próx. mantenimiento</small>${fechaCorta(p.proxMant)}</div></div>
     ${p.obs ? `<div class="meta" style="grid-template-columns:1fr"><div><small>Observación</small>${esc(p.obs)}</div></div>` : ''}
     <div class="sect">Cambiar estado</div>
     <div class="acts">${permitidos.map(e => `<button class="act ${EST[e].cls}" data-e="${e}"><i>${EST[e].ic}</i>${e === 'Bueno' && p.estado === 'Bueno' ? 'Mantenimiento realizado' : EST[e].lbl}</button>`).join('')}</div>
