@@ -1,0 +1,24 @@
+{
+  "name": "Pupitres · Colegio Vida y Verdad",
+  "short_name": "Pupitres",
+  "description": "Control premium del inventario de pupitres de 1ro, 2do y 3ro de secundaria.",
+  "lang": "es",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#0a2a6b",
+  "theme_color": "#0a2a6b",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Escanear pupitre", "url": "./index.html?go=escaner", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Lista de pupitres", "url": "./index.html?go=lista", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

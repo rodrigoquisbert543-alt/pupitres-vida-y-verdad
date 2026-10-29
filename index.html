@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a2a6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pupitres">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Pupitres · Vida y Verdad</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -98,6 +105,33 @@ nav button.fab i{width:62px;height:62px;border-radius:50%;background:linear-grad
 @keyframes g{to{transform:rotate(360deg)}}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
+/* Premium */
+html{scroll-behavior:smooth}
+.lcard{animation:subir .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes subir{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+.logo{background:linear-gradient(135deg,var(--navy),var(--blue) 60%,#3b82f6)}
+.card,.kpi{transition:transform .15s,box-shadow .15s}
+.kpi:active{transform:scale(.97)}
+.hello{position:relative;overflow:hidden;background:linear-gradient(135deg,#2563eb,var(--navy) 70%)}
+.hello::after{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(245,179,1,.35),transparent 70%)}
+.btn{box-shadow:0 6px 16px rgba(29,78,216,.25)}.btn.sec,.btn.ghost{box-shadow:none}
+nav{backdrop-filter:blur(14px);background:rgba(255,255,255,.92)}
+.btn.inst{background:linear-gradient(135deg,var(--gold),#ffcf40);color:#3a2a00;box-shadow:0 6px 16px rgba(245,179,1,.35)}
+.linkinst{display:block;margin:16px auto 0;background:none;color:var(--blue);font-weight:700;font-size:13px}
+.plat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.plat div{background:#f4f7fd;border-radius:12px;padding:10px;font-size:12px;color:var(--mute)}.plat b{display:block;color:var(--ink);font-size:13px;margin-bottom:2px}
+.paso{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px}
+.paso i{font-style:normal;background:var(--blue);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0b1220;--ink:#e7ecf8;--mute:#9aa6c2;--card:#141d33;--sh:0 6px 24px rgba(0,0,0,.35)}
+  .kpi,#sheet,nav,.filters input,.filters select{background:#141d33;color:var(--ink)}
+  nav{background:rgba(20,29,51,.92)}
+  .f input,.f select,.f textarea,#mi{background:#0f172a!important;border-color:#26324f!important;color:var(--ink)}
+  .meta div,.act,.plat div,.btn.sec{background:#1b2744}.btn.sec{color:#8fb0ff}
+  .row{border-color:#222e4b}.bar{background:#222e4b}.grip{background:#334163}
+  .alertbox{background:#3a2d0a;color:#ffe7a6}
+}
+
 /* Etiquetas e impresión */
 #prev{overflow:auto;background:#cfd6e6;border-radius:16px;padding:10px;max-height:60vh}
 .hoja{background:#fff;display:grid;justify-content:center;align-content:start;margin:0 auto 10px;overflow:hidden;break-after:page;page-break-after:always}
@@ -127,6 +161,7 @@ nav button.fab i{width:62px;height:62px;border-radius:50%;background:linear-grad
     <label class="f"><span>Contraseña</span><input id="lp" type="password" autocomplete="current-password" required></label>
     <button class="btn" id="lbtn">Ingresar</button>
     <div class="err" id="lerr"></div>
+    <button type="button" class="linkinst hidden" data-instalar>📲 Instalar aplicación</button>
   </form>
 </div>
 
@@ -135,6 +170,7 @@ nav button.fab i{width:62px;height:62px;border-radius:50%;background:linear-grad
     <div class="logo">🪑</div>
     <div><h1>Vida y Verdad</h1><small id="hUser"></small></div>
     <div class="sp"></div>
+    <button class="bell hidden" id="binst" data-instalar title="Instalar aplicación">⬇️</button>
     <button class="bell" id="bell" title="Alertas">🔔<b id="badge" class="hidden">0</b></button>
   </header>
   <main id="main"></main>
@@ -156,6 +192,7 @@ nav button.fab i{width:62px;height:62px;border-radius:50%;background:linear-grad
 
 <script>
 let PID = '';
+const GO = (() => { const g = new URLSearchParams(location.search).get('go'); return ['lista', 'escaner', 'qr'].includes(g) ? g : 'inicio'; })();
 const EST = {
   'Bueno': { ic: '✅', cls: 'ok', lbl: 'Bueno' },
   'Dañado': { ic: '⚠️', cls: 'bad', lbl: 'Dañado' },
@@ -248,8 +285,8 @@ function iniciar(u) {
   $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
   $('#hUser').textContent = u.nombre + ' · ' + u.rol;
   if (u.cambiarClave) { forzarClave(); return; }
-  ir('inicio');
-  cargar().then(() => { if (PID && !iniciar.hecho) { iniciar.hecho = true; abrirPupitre(PID); } });
+  ir(GO);
+  cargar().then(() => { if (PID && !iniciar.hecho) { iniciar.hecho = true;   abrirPupitre(PID); } });
 }
 
 async function arrancar() {
@@ -573,6 +610,11 @@ function vAjustes(m) {
     <button class="btn" id="ncrear">Crear y generar QR</button></div>
   <div class="card"><h2>🔔 Notificaciones y mantenimiento</h2><div id="cfg"><div class="spin"></div></div></div>
   <div class="card"><h2>👥 Usuarios <button class="btn sm sec" id="uadd">+ Nuevo</button></h2><div id="usrs"><div class="spin"></div></div></div>` : ''}
+  <div class="card"><h2>📲 Instalar aplicación</h2>
+    <p style="color:var(--mute);font-size:13px;margin-bottom:12px">Instálela como una app real: ícono propio, ventana independiente, inicio rápido y funciona aunque la conexión sea inestable.</p>
+    <div class="plat"><div><b>💻 Computadora</b>Windows, Mac, Linux y Chromebook (Chrome o Edge)</div><div><b>📱 Celular</b>Android (Chrome) y iPhone / iPad (Safari)</div></div>
+    <button class="btn inst" data-instalar id="ainst">⬇️ Instalar ahora</button>
+    <div class="scanmsg" id="instEstado"></div></div>
   <div class="card"><h2>🔑 Cambiar contraseña</h2>
     <label class="f"><span>Actual</span><input id="pa" type="password" autocomplete="current-password"></label>
     <label class="f"><span>Nueva (mín. 6)</span><input id="pn" type="password" autocomplete="new-password"></label>
@@ -641,6 +683,50 @@ function leerPid(cb) {
   try { google.script.url.getLocation(loc => fin(loc && loc.parameter && loc.parameter.p)); } catch (e) { fin(''); }
   setTimeout(() => fin(''), 2500);
 }
+/* ───── Instalación (PWA) ───── */
+const PWA_URL = 'https://rodrigoquisbert543-alt.github.io/pupitres-vida-y-verdad/'; // URL HTTPS donde se publica la carpeta "web" (ej. https://usuario.github.io/pupitres/)
+let instPrompt = null;
+const yaInstalada = () => navigator.standalone === true || ['standalone', 'window-controls-overlay', 'minimal-ui'].some(m => matchMedia('(display-mode: ' + m + ')').matches);
+const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function urlInstalable() {
+  if (PWA_URL) return PWA_URL;
+  const u = S.data.appUrl || '';
+  return u && !/script\.google(usercontent)?\.com/.test(u) ? u : '';
+}
+function pintarInstalar() {
+  const oculto = yaInstalada();
+  document.querySelectorAll('[data-instalar]').forEach(b => b.classList.toggle('hidden', oculto));
+  const e = $('#instEstado');
+  if (e) e.textContent = oculto ? '✅ La aplicación ya está instalada en este dispositivo.' : '';
+  const a = $('#ainst'); if (a && oculto) a.classList.add('hidden');
+}
+function guiaInstalar() {
+  const pasos = esIOS()
+    ? ['Abra esta página en <b>Safari</b>.', 'Toque el botón <b>Compartir</b> ⬆️.', 'Elija <b>“Agregar a pantalla de inicio”</b> y confirme.']
+    : ['Abra esta página en <b>Chrome</b> o <b>Edge</b>.', 'Abra el menú ⋮ del navegador (o el ícono ⬇️ de la barra de direcciones).', 'Elija <b>“Instalar aplicación”</b> y confirme.'];
+  abrirSheet(`<div class="pid">📲 Instalar aplicación</div>
+    <div style="margin:12px 0">${pasos.map((p, i) => `<div class="paso"><i>${i + 1}</i><div>${p}</div></div>`).join('')}</div>
+    <button class="btn" onclick="cerrarSheet()">Entendido</button>`);
+}
+async function instalar() {
+  if (instPrompt) {
+    const p = instPrompt; instPrompt = null; p.prompt();
+    try { const r = await p.userChoice; if (r.outcome === 'accepted') toast('✅ Instalando aplicación…', 'ok'); } catch (e) {}
+    return;
+  }
+  if (!esIOS() && !STANDALONE) {
+    const u = urlInstalable();
+    if (u) { window.open(u, '_blank', 'noopener'); toast('Abra el botón “Instalar” en la ventana nueva', 'ok'); return; }
+    toast('Falta publicar la versión instalable (ver LEEME)', 'bad'); return;
+  }
+  guiaInstalar();
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instPrompt = e; pintarInstalar(); });
+window.addEventListener('appinstalled', () => { instPrompt = null; toast('✅ Aplicación instalada', 'ok'); pintarInstalar(); });
+document.addEventListener('click', e => { if (e.target.closest('[data-instalar]')) instalar(); });
+if (STANDALONE && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+pintarInstalar();
+
 leerPid(arrancar);
 </script>
 </body>
